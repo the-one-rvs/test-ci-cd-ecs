@@ -187,27 +187,27 @@ resource "aws_ecs_task_definition" "web" {
   execution_role_arn       = aws_iam_role.new_quasar_ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
-    {
-      name      = "web"
-      image     = var.image
-      portMappings = [
-        {
-          containerPort = 1337
-          hostPort      = 1337
-          protocol      = "tcp"
-        }
-      ]
-    }
-  ],
-  logConfiguration = {
+  {
+    name      = "web",
+    image     = var.image,
+    essential = true,
+    portMappings = [
+      {
+        containerPort = 1337,
+        hostPort      = 1337,
+        protocol      = "tcp"
+      }
+    ],
+    logConfiguration = {
       logDriver = "awslogs",
       options = {
-        awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
-        awslogs-region        = "us-east-1" # change as per your region
+        awslogs-group         = "/ecs/my-service",
+        awslogs-region        = var.aws_region,
         awslogs-stream-prefix = "ecs"
       }
     }
-  )
+  }
+])
 }
 
 resource "aws_ecs_service" "web" {
