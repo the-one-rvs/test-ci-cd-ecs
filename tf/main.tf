@@ -180,7 +180,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole15"
+  name = "new_quasar_ecsTaskExecutionRole20"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
