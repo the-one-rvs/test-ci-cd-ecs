@@ -173,10 +173,14 @@ resource "aws_lb_listener" "ecs_listener" {
 resource "aws_ecs_cluster" "main" {
   name = "ecs-cluster"
   depends_on = [aws_vpc.main]
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole11"
+  name = "new_quasar_ecsTaskExecutionRole15"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -216,7 +220,7 @@ resource "aws_ecs_task_definition" "web" {
   container_definitions = jsonencode([
   {
     name      = "web",
-    image     = var.image,
+    image     = "118273046134.dkr.ecr.us-east-1.amazonaws.com/docker-strapi-quasar:0.0.1",
     essential = true,
     portMappings = [
       {
@@ -224,15 +228,15 @@ resource "aws_ecs_task_definition" "web" {
         hostPort      = 1337,
         protocol      = "tcp"
       }
-    ]
-    # logConfiguration = {
-    #   logDriver = "awslogs",
-    #   options = {
-    #     awslogs-group         = "/ecs/my-service",
-    #     awslogs-region        = "us-east-1",
-    #     awslogs-stream-prefix = "ecs"
-    #   }
-    # }
+    ],
+    logConfiguration = {
+      logDriver = "awslogs",
+      options = {
+        awslogs-group         = "/ecs/strapi",
+        awslogs-region        = "us-east-1",
+        awslogs-stream-prefix = "ecs"
+      }
+    }
   }
 ])
 }
