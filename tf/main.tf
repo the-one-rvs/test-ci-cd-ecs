@@ -202,7 +202,7 @@ resource "aws_ecs_task_definition" "web" {
       logDriver = "awslogs",
       options = {
         awslogs-group         = "/ecs/my-service",
-        awslogs-region        = us-east-1,
+        awslogs-region        = "us-east-1",
         awslogs-stream-prefix = "ecs"
       }
     }
