@@ -149,7 +149,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole4"
+  name = "new_quasar_ecsTaskExecutionRole6"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -172,10 +172,10 @@ resource "aws_iam_role_policy_attachment" "quasar_ecs_task_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# resource "aws_cloudwatch_log_group" "ecs_logs" {
-#   name              = "/ecs/my-service"
-#   retention_in_days = 7
-# }
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/quasar-my-service"
+  retention_in_days = 7
+}
 
 
 resource "aws_ecs_task_definition" "web" {
@@ -198,14 +198,14 @@ resource "aws_ecs_task_definition" "web" {
         protocol      = "tcp"
       }
     ]
-    # logConfiguration = {
-    #   logDriver = "awslogs",
-    #   options = {
-    #     awslogs-group         = "/ecs/my-service",
-    #     awslogs-region        = "us-east-1",
-    #     awslogs-stream-prefix = "ecs"
-    #   }
-    # }
+    logConfiguration = {
+      logDriver = "awslogs",
+      options = {
+        awslogs-group         = "/ecs/my-service",
+        awslogs-region        = "us-east-1",
+        awslogs-stream-prefix = "ecs"
+      }
+    }
   }
 ])
 }
