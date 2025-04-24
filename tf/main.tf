@@ -198,7 +198,7 @@ resource "aws_ecs_task_definition" "web" {
         }
       ]
     }
-  ]
+  ],
   logConfiguration = {
       logDriver = "awslogs",
       options = {
