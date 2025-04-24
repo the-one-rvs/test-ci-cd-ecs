@@ -6,3 +6,7 @@ variable "aws_secret_key" {
   description = "AWS Secret Key"
   type        = string
 }
+variable "image"{
+  description  = "Image"
+  type = string
+}
