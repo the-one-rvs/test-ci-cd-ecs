@@ -216,7 +216,7 @@ resource "aws_ecs_task_definition" "web" {
   container_definitions = jsonencode([
   {
     name      = "web",
-    image     = "118273046134.dkr.ecr.us-east-1.amazonaws.com/docker-strapi-quasar:0.0.1",
+    image     = var.image,
     essential = true,
     portMappings = [
       {
