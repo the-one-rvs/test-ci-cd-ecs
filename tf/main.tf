@@ -180,7 +180,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole20"
+  name = "new_quasar_ecsTaskExecutionRole17"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -220,7 +220,7 @@ resource "aws_ecs_task_definition" "web" {
   container_definitions = jsonencode([
   {
     name      = "web",
-    image     = "118273046134.dkr.ecr.us-east-1.amazonaws.com/docker-strapi-quasar:0.0.1",
+    image     = var.image, #"118273046134.dkr.ecr.us-east-1.amazonaws.com/docker-strapi-quasar:0.0.1",
     essential = true,
     portMappings = [
       {
