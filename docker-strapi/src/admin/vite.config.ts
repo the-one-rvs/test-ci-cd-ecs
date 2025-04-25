@@ -16,7 +16,12 @@ import { mergeConfig, type UserConfig } from 'vite';
          allowedHeaders: ['Content-Type', 'Authorization'],
        },
        proxy: {
-        allowedHosts: ['*']
+        allowedHosts: [
+          '*',
+          'localhost',
+          '*.amazonaws.com',
+          'ecs-alb-528478712.us-east-1.elb.amazonaws.com'
+        ]
       }
      },
    });
