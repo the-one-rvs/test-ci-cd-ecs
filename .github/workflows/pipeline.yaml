@@ -32,7 +32,7 @@ jobs:
 
     - name: Create .env file from secrets
       run: |
-        echo "ENV_VAR=${{ secrets.ENV_VAR }}" >> .env
+        echo "${{ secrets.ENV_VAR }}" >> .env
 
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
