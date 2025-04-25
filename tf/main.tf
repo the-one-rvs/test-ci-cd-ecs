@@ -17,6 +17,9 @@ provider "aws" {
 
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "quasar-vpc"
+  }
 }
 
 resource "aws_subnet" "public_a" {
@@ -180,7 +183,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole17"
+  name = "new_quasar_ecsTaskExecutionRole25"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
