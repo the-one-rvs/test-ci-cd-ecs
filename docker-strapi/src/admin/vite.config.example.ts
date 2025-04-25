@@ -15,6 +15,9 @@ import { mergeConfig, type UserConfig } from 'vite';
          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
          allowedHeaders: ['Content-Type', 'Authorization'],
        },
+       proxy: {
+        allowedHosts: ['*']
+      }
      },
    });
  };
