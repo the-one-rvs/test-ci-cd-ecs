@@ -1,19 +1,30 @@
-FROM node:20-bullseye
+FROM node:18-bullseye AS builder
 
-WORKDIR /app
+RUN apt-get update && \
+    apt-get install -y python3 make g++ git && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy package.json first to cache layers
+WORKDIR /opt/app
+
 COPY package*.json ./
 
-# Install dependencies cleanly
 RUN npm install
 
-# Now copy the full source
 COPY . .
 
-# Optional: Rebuild native modules
 RUN npm run build
+
+FROM node:18-bullseye
+
+RUN apt-get update && apt-get install -y libvips-dev && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/app
+
+COPY --from=builder /opt/app .
+
+RUN chown -R node:node /opt/app
+USER node
 
 EXPOSE 1337
 
-CMD ["npm", "run", "develop"]
+CMD ["npm", "run", "start"]
