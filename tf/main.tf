@@ -251,6 +251,16 @@ resource "aws_ecs_service" "web" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"  # Use Fargate Spot
+    weight            = 1
+  }
+
+   capacity_provider_strategy {
+    capacity_provider = "FARGATE_SPOT"  # Fargate Spot
+    weight            = 2
+  }
+
   network_configuration {
     subnets          = [aws_subnet.public_a.id, aws_subnet.public_b.id]
     security_groups  = [aws_security_group.ecs_sg.id]
