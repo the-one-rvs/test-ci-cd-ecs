@@ -183,7 +183,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole160"
+  name = "new_quasar_ecsTaskExecutionRole170"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -254,11 +254,6 @@ resource "aws_ecs_service" "web" {
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"  # Use Fargate Spot
     weight            = 1
-  }
-
-   capacity_provider_strategy {
-    capacity_provider = "FARGATE_SPOT"  # Fargate Spot
-    weight            = 2
   }
 
   network_configuration {
