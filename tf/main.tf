@@ -183,7 +183,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole170"
+  name = "new_quasar_ecsTaskExecutionRole180"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -249,7 +249,7 @@ resource "aws_ecs_service" "web" {
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.web.arn
   desired_count   = 1
-  launch_type     = "FARGATE"
+  # launch_type     = "FARGATE"
 
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"  # Use Fargate Spot
