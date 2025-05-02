@@ -8,7 +8,7 @@ env:
   AWS_REGION: us-east-1
   ECS_SERVICE: quasar-service
   ECS_CLUSTER: quasar-cluster
-  ECR_REPOSITORY_NAME: strapi-app
+  ECR_REPOSITORY_NAME: docker-strapi-quasar
   IMAGE_TAG: latest
   ECR_IMAGE_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/docker-strapi-quasar
 
