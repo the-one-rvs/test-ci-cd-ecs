@@ -1,11 +1,11 @@
 terraform {  
   
   # backend "s3" {  
-  #   bucket       = "quasar-backend-state-locking"  
-  #   key          = "terraform.tfstate"  
-  #   region       = "us-east-1"  
-  #   # encrypt      = true  
-  #   # use_lockfile = true  #S3 native locking
+    # bucket       = "quasar-state"  
+    # key          = "terraform.tfstate"  
+    # region       = "us-east-1"  
+    # encrypt      = true  
+    # use_lockfile = true  #S3 native locking
   # }  
 }
 
@@ -15,112 +15,6 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "quasar-vpc"
-  }
-}
-
-resource "aws_subnet" "public_a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
-  map_public_ip_on_launch = true
-  depends_on = [aws_vpc.main]
-}
-
-resource "aws_subnet" "public_b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
-  map_public_ip_on_launch = true
-  depends_on = [aws_vpc.main, aws_subnet.public_a]
-}
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
-  depends_on = [aws_subnet.public_a, aws_subnet.public_b]
-}
-
-resource "aws_route_table" "rt" {
-  vpc_id = aws_vpc.main.id
-  depends_on = [aws_internet_gateway.igw]
-}
-
-resource "aws_route" "internet_access" {
-  route_table_id         = aws_route_table.rt.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.igw.id
-  depends_on = [aws_route.internet_access]
-}
-
-resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.public_a.id
-  route_table_id = aws_route_table.rt.id
-  depends_on = [aws_route_table_association.a]
-}
-
-resource "aws_route_table_association" "b" {
-  subnet_id      = aws_subnet.public_b.id
-  route_table_id = aws_route_table.rt.id
-  depends_on = [aws_route_table_association.b]
-}
-
-resource "aws_security_group" "alb_sg" {
-  name        = "alb-sg"
-  description = "Allow HTTP access"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 1337
-    to_port     = 1337
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  depends_on = [aws_subnet.public_a,aws_subnet.public_b]
-}
-
-resource "aws_security_group" "ecs_sg" {
-  name   = "ecs-sg"
-  vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port       = 1337
-    to_port         = 1337
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  depends_on = [aws_subnet.public_a,aws_subnet.public_b]
-}
 
 resource "aws_lb" "ecs_alb" {
   name               = "ecs-alb"
@@ -129,14 +23,12 @@ resource "aws_lb" "ecs_alb" {
   security_groups    = [aws_security_group.alb_sg.id]
   depends_on = [aws_security_group.alb_sg]
 }
-
-resource "aws_lb_target_group" "ecs_tg" {
-  name     = "ecs-tg"
+resource "aws_lb_target_group" "blue" {
+  name     = "quasar-blue-tg"
   port     = 1337
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
   target_type = "ip"
-
   health_check {
     path                = "/admin"
     interval            = 30
@@ -148,29 +40,49 @@ resource "aws_lb_target_group" "ecs_tg" {
   depends_on = [aws_lb.ecs_alb]
 }
 
+resource "aws_lb_target_group" "green" {
+  name     = "quasar-green-tg"
+  port     = 1337
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+  target_type = "ip"
+  health_check {
+    path                = "/admin"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200-399"
+  }
+  depends_on = [aws_lb.ecs_alb]
+}
+
+
 resource "aws_lb_listener" "ecs_listener_80" {
   load_balancer_arn = aws_lb.ecs_alb.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_tg.arn
+    type             = "fixed-response"
+    status_code      = 200
+    content_type     = "text/plain"
+    message_body     = "ALB is working"
   }
-  depends_on = [aws_lb_target_group.ecs_tg]
+  # depends_on = [aws_lb_target_group.ecs_tg]
 }
-
 
 resource "aws_lb_listener" "ecs_listener" {
   load_balancer_arn = aws_lb.ecs_alb.arn
-  port              = 1337
-  protocol          = "HTTP"
+  port              = 80  # or 443 for HTTPS
+  protocol          = "HTTP"  # or "HTTPS"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_tg.arn
+    type             = "fixed-response"
+    status_code      = 200
+    content_type     = "text/plain"
+    message_body     = "ALB is working"
   }
-  depends_on = [aws_lb_target_group.ecs_tg]
 }
 
 resource "aws_ecs_cluster" "main" {
@@ -183,7 +95,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole180"
+  name = "new_quasar_ecsTaskExecutionRole200"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -249,7 +161,10 @@ resource "aws_ecs_service" "web" {
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.web.arn
   desired_count   = 1
-  # launch_type     = "FARGATE"
+
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
 
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"  # Use Fargate Spot
@@ -263,7 +178,7 @@ resource "aws_ecs_service" "web" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_tg.arn
+    target_group_arn = aws_lb_target_group.blue.arn  # Initially, traffic goes to blue
     container_name   = "web"
     container_port   = 1337
   }
