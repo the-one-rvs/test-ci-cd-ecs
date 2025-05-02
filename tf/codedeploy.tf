@@ -4,7 +4,7 @@ resource "aws_codedeploy_app" "strapi" {
 }
 
 resource "aws_iam_role" "codedeploy_role" {
-  name = "quasar-codedeploy-role"
+  name = "quasar-codedeploy-role10"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",

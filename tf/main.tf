@@ -1,11 +1,11 @@
 terraform {  
   
   # backend "s3" {  
-    # bucket       = "quasar-state"  
-    # key          = "terraform.tfstate"  
-    # region       = "us-east-1"  
-    # encrypt      = true  
-    # use_lockfile = true  #S3 native locking
+  #   bucket       = "quasar-state"  
+  #   key          = "terraform/state"  
+  #   region       = "us-east-1"  
+  #   encrypt      = true  
+  #   use_lockfile = true  #S3 native locking
   # }  
 }
 
@@ -91,7 +91,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "new_quasar_ecs_task_execution_role" {
-  name = "new_quasar_ecsTaskExecutionRole200"
+  name = "new_quasar_ecsTaskExecutionRole210"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
