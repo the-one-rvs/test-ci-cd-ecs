@@ -64,10 +64,8 @@ resource "aws_lb_listener" "ecs_listener_80" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "fixed-response"
-    status_code      = 200
-    content_type     = "text/plain"
-    message_body     = "ALB is working"
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blue.arn
   }
   # depends_on = [aws_lb_target_group.ecs_tg]
 }
@@ -78,10 +76,8 @@ resource "aws_lb_listener" "ecs_listener" {
   protocol          = "HTTP"  # or "HTTPS"
 
   default_action {
-    type             = "fixed-response"
-    status_code      = 200
-    content_type     = "text/plain"
-    message_body     = "ALB is working"
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blue.arn
   }
 }
 
